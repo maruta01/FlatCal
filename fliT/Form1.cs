@@ -106,9 +106,6 @@ namespace fliT
         private void button1_Click(object sender, EventArgs e)
         {
         //Test
-        //dddddddddddddddddddddddddddddddddddddddddddddddddd
-
-        
             DeviceInfo[] deviceInfos = fliCCD.GetList();
             if (deviceInfos != null)
             {
