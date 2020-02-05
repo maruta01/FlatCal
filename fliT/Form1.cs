@@ -105,7 +105,6 @@ namespace fliT
 
         private void button1_Click(object sender, EventArgs e)
         {
-        //Test
             DeviceInfo[] deviceInfos = fliCCD.GetList();
             if (deviceInfos != null)
             {
@@ -761,7 +760,7 @@ namespace fliT
 
         private void button7_Click(object sender, EventArgs e)
         {
-            if (!connectStatus)
+            if (connectStatus)
             {
                 double exposureTime = 1.00; // TEST
                 textBox11.Text = Convert.ToString(exposureTime);
@@ -773,7 +772,7 @@ namespace fliT
                 fristconut = 0;
                 flatCount = 1;
                 variableAdu = Convert.ToDouble(textBox19.Text); //test
-                aDU = 38000;
+                aDU = 0;
                 if (starLoop)
                 {
                     starLoop = false;
@@ -812,7 +811,7 @@ namespace fliT
                             lastExposureTime = exposeCal;
                         }
                     }
-                    //asdsadsa
+               
                     double CostError = aDU - targetADU;
                     if (fristconut >= 2)
                     {
