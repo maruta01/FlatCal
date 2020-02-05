@@ -768,7 +768,6 @@ namespace fliT
                 fristExposure = lastExposureTime;
                 textBox11.Enabled = false;
                 textBox12.Enabled = false;
-
                 fristconut = 0;
                 flatCount = 1;
                 variableAdu = Convert.ToDouble(textBox19.Text); //test
