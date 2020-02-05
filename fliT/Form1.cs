@@ -760,7 +760,6 @@ namespace fliT
 
         private void button7_Click(object sender, EventArgs e)
         {
-            //TEST
             if (connectStatus)
             {
                 double exposureTime = 1.00; // TEST
