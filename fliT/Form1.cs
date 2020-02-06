@@ -762,15 +762,14 @@ namespace fliT
         {
             if (connectStatus)
             {
-                double exposureTime = 1.00; // TEST
+                double exposureTime = exposureformDB(37500, filterSelect); // TEST find Exposure DB
                 textBox11.Text = Convert.ToString(exposureTime);
-                lastExposureTime = Convert.ToDouble(textBox11.Text);
+                lastExposureTime = exposureTime;
                 fristExposure = lastExposureTime;
                 textBox11.Enabled = false;
                 textBox12.Enabled = false;
                 fristconut = 0;
                 flatCount = 1;
-                variableAdu = Convert.ToDouble(textBox19.Text); //test
                 aDU = 0;
                 if (starLoop)
                 {
@@ -801,18 +800,13 @@ namespace fliT
                 {
                     double targetADU = 37500;
 
-                    if (fristconut < 2)
+                    if (fristconut < 1)
                     {
                         exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), lastExposureTime);
-                        if (fristconut < 1)
-                        {
-                            double exposeCal = exposureCal(lastExposureTime, aDU, variableAdu);
-                            lastExposureTime = exposeCal;
-                        }
+                        variableAdu = aDU / lastExposureTime;
                     }
-               
                     double CostError = aDU - targetADU;
-                    if (fristconut >= 2)
+                    if (fristconut >= 1)
                     {
                         if (CostError < 0)
                         {
@@ -824,12 +818,9 @@ namespace fliT
                         }
                         double exposeCal = exposureCal(lastExposureTime, aDU, variableAdu);
                         lastExposureTime = exposeCal;
-                       
                         exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), lastExposureTime);
                     }
-
                     fristconut++;
-
                     if (Math.Abs(CostError) <= 2000)
                     {
                         flatCount++;
@@ -1025,6 +1016,9 @@ namespace fliT
                 }
             }));
         }
+
+        //===================================================//
+
         //===================================================//
         //**************************************************************//
 
@@ -1238,6 +1232,27 @@ namespace fliT
         }
 
         //=========== Continue Flat ============//
+
+        //==============DB Expost=============//
+        public double exposureformDB(double aduTarget, string filter)
+        {
+            double exposure = 0;
+            sunPosition(out double sunAlt, out double sunAzm);
+            var things = db.GetCollection<CCD_Mongo>("data");
+            try
+            {
+                var sunaltDB = things.AsQueryable().Where(x => x.SunAltStart >= (sunAlt - 0.5) & x.SunAltStart < (sunAlt + 0.5) & x.Filter == filter & x.Adu >= (aduTarget - 2000) & x.Adu <= (aduTarget + 2000)).Min(x => x.SunAltStart);
+                var command = things.AsQueryable().Where(y => y.SunAltStart == sunaltDB & y.Filter == filter).FirstOrDefault();
+                exposure = command.ExposureTime;
+            }
+            catch
+            {
+                exposure = 1;
+            }
+            return (exposure);
+        }
+
+        //===================================//
 
 
     }
