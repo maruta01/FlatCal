@@ -762,7 +762,15 @@ namespace fliT
         {
             if (connectStatus)
             {
-                double exposureTime = exposureformDB(37500, filterSelect); // TEST find Exposure DB
+                double exposureTime = 0;
+                if (checkBox1.Checked == true)
+                {
+                     exposureTime = exposureformDB(37500, filterSelect); 
+                }
+                else if (checkBox1.Checked == false)
+                {
+                     exposureTime = 1;
+                }
                 textBox11.Text = Convert.ToString(exposureTime);
                 lastExposureTime = exposureTime;
                 fristExposure = lastExposureTime;
@@ -799,7 +807,7 @@ namespace fliT
                 if (starLoop)
                 {
                     double targetADU = 37500;
-
+             
                     if (fristconut < 1)
                     {
                         exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), lastExposureTime);
