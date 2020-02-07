@@ -765,7 +765,7 @@ namespace fliT
                 double exposureTime = 0;
                 if (checkBox1.Checked == true)
                 {
-                     exposureTime = exposureformDB(37500, filterSelect); 
+                     exposureTime = exposureformDB(37500, filterSelect);  
                 }
                 else if (checkBox1.Checked == false)
                 {
