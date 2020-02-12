@@ -765,7 +765,8 @@ namespace fliT
                 double exposureTime = 0;
                 if (checkBox1.Checked == true)
                 {
-                     exposureTime = exposureformDB(37500, filterSelect);  
+                    exposureTime = exposureformDB(37500, filterSelect);
+                    exposureTime = Convert.ToDouble(Math.Round(Convert.ToDecimal(exposureTime),2));
                 }
                 else if (checkBox1.Checked == false)
                 {
@@ -811,11 +812,13 @@ namespace fliT
                     if (fristconut < 1)
                     {
                         exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), lastExposureTime);
-                        variableAdu = aDU / lastExposureTime;
+                      
+                        variableAdu = findFristAduVariable(lastExposureTime, aDU);
                     }
+                    
                     double CostError = aDU - targetADU;
                     if (fristconut >= 1)
-                    {
+                    {  
                         if (CostError < 0)
                         {
                             variableAdu = variableAdu + Math.Abs(CostError);
@@ -842,6 +845,7 @@ namespace fliT
                         flatCount = 0;
                         MessageBox.Show(" Flat continue End  'Clear  Last ADU' ");
                         aDU = 0;
+                        variableAdu = 0;
                         timer2.Stop();
                     }
                 }
@@ -856,7 +860,12 @@ namespace fliT
         }
 
         //============================================================================//
-
+        public double findFristAduVariable( double exposure , double adu  )
+        {
+            double simulete = adu / exposure;
+            double aduVariableFrist = exposure * simulete;
+            return (aduVariableFrist);
+        }
 
         public double variableFindAdu(string filter)
         {
@@ -1246,16 +1255,17 @@ namespace fliT
         {
             double exposure = 0;
             sunPosition(out double sunAlt, out double sunAzm);
-            var things = db.GetCollection<CCD_Mongo>("data");
+   
             try
             {
-                var sunaltDB = things.AsQueryable().Where(x => x.SunAltStart >= (sunAlt - 0.5) & x.SunAltStart < (sunAlt + 0.5) & x.Filter == filter & x.Adu >= (aduTarget - 2000) & x.Adu <= (aduTarget + 2000)).Min(x => x.SunAltStart);
+                var things = db.GetCollection<CCD_Mongo>("data");
+                var sunaltDB = things.AsQueryable().Where(x => x.SunAltStart >= (sunAlt - 0.5) & x.SunAltStart < (sunAlt + 0.5) & x.Filter == filter & x.Adu >= (aduTarget - 1000) & x.Adu <= (aduTarget + 1000)).Min(x => x.SunAltStart);
                 var command = things.AsQueryable().Where(y => y.SunAltStart == sunaltDB & y.Filter == filter).FirstOrDefault();
                 exposure = command.ExposureTime;
             }
             catch
             {
-                exposure = 1;
+                exposure = 1.00;
             }
             return (exposure);
         }
