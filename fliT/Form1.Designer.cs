@@ -81,10 +81,8 @@
             this.button7 = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.label35 = new System.Windows.Forms.Label();
-            this.textBox21 = new System.Windows.Forms.TextBox();
-            this.button10 = new System.Windows.Forms.Button();
             this.button9 = new System.Windows.Forms.Button();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBox20 = new System.Windows.Forms.TextBox();
             this.textBox19 = new System.Windows.Forms.TextBox();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
@@ -117,9 +115,7 @@
             this.label34 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.timer4 = new System.Windows.Forms.Timer(this.components);
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -153,7 +149,6 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(171, 57);
             this.textBox1.TabIndex = 1;
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // label1
             // 
@@ -660,7 +655,7 @@
             this.button7.BackColor = System.Drawing.Color.Lime;
             this.button7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
             this.button7.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.button7.Location = new System.Drawing.Point(10, 146);
+            this.button7.Location = new System.Drawing.Point(10, 184);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(185, 48);
             this.button7.TabIndex = 49;
@@ -692,11 +687,8 @@
             // panel4
             // 
             this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel4.Controls.Add(this.checkBox1);
-            this.panel4.Controls.Add(this.label35);
-            this.panel4.Controls.Add(this.textBox21);
-            this.panel4.Controls.Add(this.button10);
             this.panel4.Controls.Add(this.button9);
+            this.panel4.Controls.Add(this.checkBox1);
             this.panel4.Controls.Add(this.textBox20);
             this.panel4.Controls.Add(this.textBox19);
             this.panel4.Controls.Add(this.button7);
@@ -710,46 +702,30 @@
             this.panel4.Size = new System.Drawing.Size(215, 281);
             this.panel4.TabIndex = 38;
             // 
-            // label35
-            // 
-            this.label35.AutoSize = true;
-            this.label35.Location = new System.Drawing.Point(3, 226);
-            this.label35.Name = "label35";
-            this.label35.Size = new System.Drawing.Size(62, 13);
-            this.label35.TabIndex = 53;
-            this.label35.Text = "Ref. Expost";
-            // 
-            // textBox21
-            // 
-            this.textBox21.Location = new System.Drawing.Point(67, 223);
-            this.textBox21.Name = "textBox21";
-            this.textBox21.Size = new System.Drawing.Size(60, 20);
-            this.textBox21.TabIndex = 52;
-            // 
-            // button10
-            // 
-            this.button10.Location = new System.Drawing.Point(133, 223);
-            this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(75, 23);
-            this.button10.TabIndex = 51;
-            this.button10.Text = "flat optimizer";
-            this.button10.UseVisualStyleBackColor = true;
-            this.button10.Click += new System.EventHandler(this.button10_Click);
-            // 
             // button9
             // 
-            this.button9.Location = new System.Drawing.Point(8, 194);
+            this.button9.Location = new System.Drawing.Point(10, 249);
             this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(107, 23);
-            this.button9.TabIndex = 40;
-            this.button9.Text = "TEST cal optimizer\r\n";
+            this.button9.Size = new System.Drawing.Size(75, 23);
+            this.button9.TabIndex = 55;
+            this.button9.Text = "button9";
             this.button9.UseVisualStyleBackColor = true;
-            this.button9.Click += new System.EventHandler(this.button9_Click);
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.checkBox1.Location = new System.Drawing.Point(73, 64);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(129, 17);
+            this.checkBox1.TabIndex = 54;
+            this.checkBox1.Text = "Use DB Flat Data ";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // textBox20
             // 
             this.textBox20.Enabled = false;
-            this.textBox20.Location = new System.Drawing.Point(97, 119);
+            this.textBox20.Location = new System.Drawing.Point(97, 139);
             this.textBox20.Name = "textBox20";
             this.textBox20.Size = new System.Drawing.Size(100, 20);
             this.textBox20.TabIndex = 50;
@@ -757,11 +733,11 @@
             // 
             // textBox19
             // 
-            this.textBox19.Location = new System.Drawing.Point(97, 95);
+            this.textBox19.Location = new System.Drawing.Point(97, 115);
             this.textBox19.Name = "textBox19";
             this.textBox19.Size = new System.Drawing.Size(100, 20);
             this.textBox19.TabIndex = 50;
-            this.textBox19.Text = "40000";
+            this.textBox19.Text = "37500";
             // 
             // comboBox2
             // 
@@ -774,7 +750,7 @@
             "moon",
             "planet",
             "Max Value"});
-            this.comboBox2.Location = new System.Drawing.Point(97, 67);
+            this.comboBox2.Location = new System.Drawing.Point(97, 87);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(100, 24);
             this.comboBox2.TabIndex = 48;
@@ -784,7 +760,7 @@
             // 
             this.label32.AutoSize = true;
             this.label32.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.label32.Location = new System.Drawing.Point(-2, 122);
+            this.label32.Location = new System.Drawing.Point(-2, 142);
             this.label32.Name = "label32";
             this.label32.Size = new System.Drawing.Size(93, 13);
             this.label32.TabIndex = 47;
@@ -794,17 +770,17 @@
             // 
             this.label31.AutoSize = true;
             this.label31.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.label31.Location = new System.Drawing.Point(18, 98);
+            this.label31.Location = new System.Drawing.Point(18, 118);
             this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(73, 13);
+            this.label31.Size = new System.Drawing.Size(64, 13);
             this.label31.TabIndex = 47;
-            this.label31.Text = "Variable Adu :";
+            this.label31.Text = "ADU Target";
             // 
             // label12
             // 
             this.label12.AutoSize = true;
             this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.label12.Location = new System.Drawing.Point(40, 70);
+            this.label12.Location = new System.Drawing.Point(40, 90);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(51, 15);
             this.label12.TabIndex = 47;
@@ -814,7 +790,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.label3.Location = new System.Drawing.Point(5, 14);
+            this.label3.Location = new System.Drawing.Point(10, 20);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(192, 18);
             this.label3.TabIndex = 3;
@@ -1177,26 +1153,10 @@
             this.timer2.Interval = 500;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // timer3
-            // 
-            this.timer3.Interval = 500;
-            this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
-            // 
             // timer4
             // 
             this.timer4.Interval = 500;
             this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.checkBox1.Location = new System.Drawing.Point(73, 44);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(129, 17);
-            this.checkBox1.TabIndex = 54;
-            this.checkBox1.Text = "Use DB Flat Data ";
-            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -1306,14 +1266,9 @@
         private System.Windows.Forms.Label label31;
         private System.Windows.Forms.TextBox textBox20;
         private System.Windows.Forms.Label label32;
-        private System.Windows.Forms.Timer timer3;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Label label33;
         private System.Windows.Forms.Label label34;
-        private System.Windows.Forms.Button button9;
-        private System.Windows.Forms.Button button10;
-        private System.Windows.Forms.TextBox textBox21;
-        private System.Windows.Forms.Label label35;
         private System.Windows.Forms.Panel panel6;
         private System.Windows.Forms.Label label27;
         private System.Windows.Forms.Label label16;
@@ -1330,6 +1285,7 @@
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.Timer timer4;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.Button button9;
     }
 }
 

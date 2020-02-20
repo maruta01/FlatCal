@@ -106,11 +106,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AllSkyPlotGraph.cs" />
+    <Compile Include="Allskyplotghap.cs" />
     <Compile Include="CalculateExposure.cs" />
     <Compile Include="CCDConnector.cs" />
     <Compile Include="CCD_Mongo.cs" />
     <Compile Include="FilterConnector.cs" />
+    <Compile Include="FlatCalculator.cs" />
     <Compile Include="FLI.cs" />
     <Compile Include="FLICCD.cs" />
     <Compile Include="FLIFilter.cs" />

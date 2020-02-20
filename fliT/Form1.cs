@@ -26,6 +26,7 @@ using MongoDB.Driver;
 using MongoDB_CCD;
 using convertFitsToJPG;
 using Emgu.CV.CvEnum;
+using AllSky;
 
 
 namespace fliT
@@ -192,15 +193,6 @@ namespace fliT
             }
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
 
         private void textBox3_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -218,9 +210,6 @@ namespace fliT
             AstroLib.Setup(true, LATITUDE, LONGITUDE, 7, false, 2400, "Port1.PXP");
             //===================================//
             SetTimer();
-
-
-
         }
 
         //=================== Ecposure ===================//
@@ -526,6 +515,7 @@ namespace fliT
         {
             try
             {
+                
                 RaDec raDec = Sun.GetRaDec(AstroTime.JulianDayUTC(DateTime.Now));
                 AltAz sunAltAzm = AstroLib.RADecToAltAz(DateTime.Now, raDec);
                 String altSunBeforeSprit = Convert.ToString(sunAltAzm.Alt);
@@ -543,8 +533,8 @@ namespace fliT
                     textBox10.Text = "Local Date Time: " + DateTime.Now + Environment.NewLine +
                                      "Latitude Ref : " + LATITUDE + Environment.NewLine +
                                      "Longitude Ref : " + LONGITUDE + Environment.NewLine +
-                                     "Sun Alt : " + Math.Round(Convert.ToDecimal(sunAltSprited), 5) + Environment.NewLine +
-                                     "Sun Azm : " + Math.Round(Convert.ToDecimal(sunAzmSprited), 5) + Environment.NewLine +
+                                     "Sun Alt : " + Math.Round(Convert.ToDecimal(sunAltSprited), 2) + Environment.NewLine +
+                                     "Sun Azm : " + Math.Round(Convert.ToDecimal(sunAzmSprited), 2) + Environment.NewLine +
                                      "Revert Azm : " + Math.Round(Convert.ToDecimal(revertSunAzm), 5);
                     textBox14.Text = Convert.ToString(Math.Round(Convert.ToDecimal(aDU), 2));
                     textBox13.Text = exposureTime;
@@ -670,6 +660,7 @@ namespace fliT
             double Azm = Convert.ToDouble(dataPw4["mount.azimuth_degs"]);
             double Alt = Convert.ToDouble(dataPw4["mount.altitude_degs"]);
 
+
             //=========== ACCESS Shared folder ==============//
             try
             {
@@ -681,34 +672,13 @@ namespace fliT
             }
             catch
             { }
-            //==============================================//
+            Image<Bgr, byte> img = new Image<Bgr, byte>("LASTALLSKY.JPG");
 
-            AllSkyPlotGraph allSkyPlotGraph = new AllSkyPlotGraph();
-            double telescopeRadius = 5.0;
-
-            Image<Bgr, byte> img = new Image<Bgr, byte>("LASTALLSKY.JPG"); // ALLSKY Image 640 x 480 px 
-
-            allSkyPlotGraph.addBackground(img, out Image<Bgr, byte> imgaddBg);
-
-            //===== Circle Line ======//
-            CvInvoke.Circle(imgaddBg, new Point((imgaddBg.Height / 2), (imgaddBg.Width / 2)), 320, new MCvScalar(0, 0, 0), 2);
-            //=======================//
-            allSkyPlotGraph.telescopeRadius = telescopeRadius;
-            allSkyPlotGraph.imageboxHeight = imgaddBg.Height;
-
-            Point point = allSkyPlotGraph.CalculatePoint(Azm, Alt);
-            Point pointTextAzm = point;
-            pointTextAzm.X = pointTextAzm.X + 20;
-            Point pointTextAlt = pointTextAzm;
-            pointTextAlt.Y = pointTextAlt.Y + 25;
-
-            CvInvoke.Circle(imgaddBg, point, Convert.ToInt32(telescopeRadius), new MCvScalar(0, 0, 255), 2);
-            CvInvoke.PutText(imgaddBg, "Azm: " + Math.Round(Convert.ToDecimal(Azm), 0), pointTextAzm, FontFace.HersheySimplex, 0.65, new Bgr(Color.Red).MCvScalar);
-            CvInvoke.PutText(imgaddBg, "Alt: " + Math.Round(Convert.ToDecimal(Alt), 0), pointTextAlt, FontFace.HersheySimplex, 0.65, new Bgr(Color.Red).MCvScalar);
-
-            imageBox1.Image = imgaddBg;
+            Allskyplotgraph allskyplotgraph = new Allskyplotgraph();
+            Image<Bgr, byte> imgAddGraph = allskyplotgraph.plotTelescope(img, Azm, Alt, 5);
+            imageBox1.Image = imgAddGraph;
             fileNameAllsky = "AllskyImage/Alt" + Alt + "AZ" + Azm + ".jpg";
-            imgaddBg.Save(fileNameAllsky);
+            imgAddGraph.Save(fileNameAllsky);
 
         }
 
@@ -760,17 +730,17 @@ namespace fliT
 
         private void button7_Click(object sender, EventArgs e)
         {
-            if (connectStatus)
+            if (!connectStatus)
             {
                 double exposureTime = 0;
                 if (checkBox1.Checked == true)
                 {
                     exposureTime = exposureformDB(37500, filterSelect);
-                    exposureTime = Convert.ToDouble(Math.Round(Convert.ToDecimal(exposureTime),2));
+                    exposureTime = Convert.ToDouble(Math.Round(Convert.ToDecimal(exposureTime), 2));
                 }
                 else if (checkBox1.Checked == false)
                 {
-                     exposureTime = 1;
+                    exposureTime = 1;
                 }
                 textBox11.Text = Convert.ToString(exposureTime);
                 lastExposureTime = exposureTime;
@@ -807,18 +777,17 @@ namespace fliT
             {
                 if (starLoop)
                 {
-                    double targetADU = 37500;
-             
+                    double targetADU = Convert.ToDouble(textBox19.Text);
+
                     if (fristconut < 1)
                     {
                         exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), lastExposureTime);
-                      
-                        variableAdu = findFristAduVariable(lastExposureTime, aDU);
+                        variableAdu = aDU;
                     }
-                    
+
                     double CostError = aDU - targetADU;
                     if (fristconut >= 1)
-                    {  
+                    {
                         if (CostError < 0)
                         {
                             variableAdu = variableAdu + Math.Abs(CostError);
@@ -860,7 +829,7 @@ namespace fliT
         }
 
         //============================================================================//
-        public double findFristAduVariable( double exposure , double adu  )
+        public double findFristAduVariable(double exposure, double adu)
         {
             double simulete = adu / exposure;
             double aduVariableFrist = exposure * simulete;
@@ -888,10 +857,7 @@ namespace fliT
 
         //***************************************************************//
         //================Calculate Flat Optimizer TEST============//
-        private void button9_Click(object sender, EventArgs e)
-        {
-            flatOptimizer();
-        }
+
 
         public void flatOptimizer()
         {
@@ -945,94 +911,7 @@ namespace fliT
         }
 
         //================== Optimizer TEST ==================//
-        double expTimeHat = 0;
-        double variableDef = 2;
-        double LastExp = 0;
-        double expTime = 0;
-        double loopcount = 0;
-        double aduAProximate = 0;
-        double optimizerADU = 0;
-        bool endCount = false;
 
-        double iLoop = 1;
-        private void button10_Click(object sender, EventArgs e)
-        {
-            expTime = Convert.ToDouble(textBox21.Text);
-            LastExp = expTime;
-            loopcount = 0;
-            endCount = false;
-            if (starLoop)
-            {
-                starLoop = false;
-                button10.Text = "Start Expose";
-                button10.BackColor = System.Drawing.Color.Lime;
-                timer3.Stop();
-            }
-            else
-            {
-                starLoop = true;
-                button10.Text = "Stop Expose";
-                button10.BackColor = System.Drawing.Color.Red;
-                timer3.Start();
-            }
-        }
-
-
-
-        private void timer3_Tick(object sender, EventArgs e)
-        {
-            button10.Invoke((Action)(() =>
-            {
-                if (starLoop)
-                {
-                    double aduTarget = 37500;
-                    double alpha = 2000;
-                    if (endCount == false)
-                    {
-                        sunPosition(out double sunAlt, out double sunAzm);
-                        exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), expTime);
-                        aduAProximate = (-1.5 * Math.Pow(10, 4)) * sunAlt + (-2 * Math.Pow(10, 3)) * LastExp;
-                        optimizerADU = aduAProximate + (1 / iLoop) * (aDU - aduAProximate);
-
-                        double Error = aduTarget - optimizerADU;
-                        if (Error < 0)
-                        {
-                            expTimeHat = LastExp + (Math.Abs(LastExp - expTime)) / variableDef;
-                            Console.WriteLine("Positive direction");
-                        }
-                        else if (Error > 0)
-                        {
-                            expTimeHat = LastExp - (Math.Abs(LastExp - expTime)) / variableDef;
-                            Console.WriteLine("Negative direction");
-                        }
-                        LastExp = expTime;
-                        expTime = expTimeHat;
-
-                        if (Math.Abs(Error) <= alpha)
-                        {
-                            if (loopcount < 5)
-                            {
-                                loopcount++;
-                            }
-                            else
-                            {
-                                endCount = true;
-                            }
-                        }
-                        iLoop++;
-                    }
-                    if (endCount == true)
-                    {
-                        starLoop = false;
-                        button10.Text = "Start Expose Flat";
-                        button10.BackColor = System.Drawing.Color.Lime;
-                        MessageBox.Show(" Optimizer Test' ");
-                        aDU = 0;
-                        timer3.Stop();
-                    }
-                }
-            }));
-        }
 
         //===================================================//
 
@@ -1126,22 +1005,13 @@ namespace fliT
             }
         }
         string[] nameFlat = { };
-        int loopFlat = 1;
+        int loop = 1;
+        double expTime = 1;
+        double expTime2 = 1;
         private void button12_Click(object sender, EventArgs e)
         {
-            nameFlat = readFlatContinuous(amostFlat);
-            loopFlat = 1;
-
-            foreach (KeyValuePair<int, string> item in dictFilter)
-            {
-                if (item.Value == nameFlat[0])
-                {
-                    // fliFilter.SetFilterPosition(item.Key, -1);
-                    // filterSelect = item.Value;
-                    Console.WriteLine("Change Filter" + item.Key);
-                }
-            }
-
+            flatCount = 0;
+            aDU = 30000;
             if (starLoop)
             {
                 starLoop = false;
@@ -1157,77 +1027,35 @@ namespace fliT
                 timer4.Start();
             }
         }
+        FlatCalculator flatCalculator = new FlatCalculator();
+        FlatCalculator flatCalculator2 = new FlatCalculator();
         private void timer4_Tick(object sender, EventArgs e)
         {
             button12.Invoke((Action)(() =>
             {
+                double aduTarget = 37500;
                 if (starLoop)
                 {
-                    double targetADU = 37500;
+                    Console.WriteLine("Expost : " + expTime + " ADU : " + aDU + " grab at " + loop);
+                    expTime = flatCalculator.flatExposureTime("R", aDU, expTime, 37500, loop);
 
-                    if (fristconut < 2)
+                    if (Math.Abs(aDU - aduTarget) <= 1000)
                     {
-                        exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), lastExposureTime);
-                        if (fristconut < 1)
-                        {
-                            double exposeCal = exposureCal(lastExposureTime, aDU, variableAdu);
-                            lastExposureTime = exposeCal;
-                        }
-                    }
-                    double CostError = targetADU - aDU;
-                    if (fristconut >= 2)
-                    {
-                        if (CostError < 0)
-                        {
-                            variableAdu = variableAdu + Math.Abs(CostError);
-                        }
-                        else if (CostError > 0)
-                        {
-                            variableAdu = variableAdu - Math.Abs(CostError);
-                        }
-                        double exposeCal = exposureCal(lastExposureTime, aDU, variableAdu);
-                        lastExposureTime = exposeCal;
-                        exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), lastExposureTime);
-                    }
-
-                    fristconut++;
-
-                    if (Math.Abs(CostError) <= 2000)
-                    {
+                        Console.WriteLine("OK" + flatCount);
                         flatCount++;
-                    }
-                    if (flatCount > 5)
-                    {
-                        starLoop = false;
-                    }
-                }
-                else
-                {
-                    if (loopFlat < nameFlat.Length)
-                    {
-                        foreach (KeyValuePair<int, string> item in dictFilter)
+                        if (flatCount > 5)
                         {
-                            if (item.Value == nameFlat[loopFlat])
-                            {
-                                fliFilter.SetFilterPosition(item.Key, -1);
-                                filterSelect = item.Value;
-                                Console.WriteLine("Change Filter" + item.Key);
-                            }
+                            starLoop = false;
+                            button12.Text = "Start Expose";
+                            button12.BackColor = System.Drawing.Color.Lime;
+                            timer4.Stop();
                         }
-                        loopFlat++;
-                        starLoop = true;
-                    }
-                    else
-                    {
-                        starLoop = false;
-                        button12.Text = "Start Expose";
-                        button12.BackColor = System.Drawing.Color.Lime;
-                        timer4.Stop();
                     }
                 }
+                loop++;
+
             }));
         }
-
         public String[] readFlatContinuous(int amostFlat)
         {
             string[] nameFlat = new string[amostFlat];
@@ -1255,7 +1083,6 @@ namespace fliT
         {
             double exposure = 0;
             sunPosition(out double sunAlt, out double sunAzm);
-   
             try
             {
                 var things = db.GetCollection<CCD_Mongo>("data");
@@ -1269,10 +1096,7 @@ namespace fliT
             }
             return (exposure);
         }
-
         //===================================//
-
-
     }
 
 
