@@ -17,16 +17,15 @@ namespace AllSky
         private double alt;
         private int telescopeRadius = 5;
 
-        public Image<Bgr, byte> plotTelescope(Image<Bgr, byte> allSkyImage, double azm, double alt, int telescopeRadius = 5)
+        public Image<Bgr, byte> plotTelescope(Image<Bgr, byte> allSkyImage, Point point, int telescopeRadius = 5)
         {
             this.allSkyImage = allSkyImage;
-            this.azm = azm;
-            this.alt = alt;
+         
             this.telescopeRadius = telescopeRadius;
 
             Image<Bgr, byte> allskyplot = addGraph(allSkyImage);
 
-            Point point = calculatePoint(azm, alt);
+            
             Point pointTextAzm = point;
             pointTextAzm.X = pointTextAzm.X + 20;
             Point pointTextAlt = pointTextAzm;
@@ -38,8 +37,10 @@ namespace AllSky
 
             return (allskyplot);
         }
-        private Point calculatePoint(Double azm, Double alt)
+        public Point calculatePoint(Double azm, Double alt)
         {
+            this.alt = alt;
+            this.azm = azm;
             int X, Y;
             int A = (int)(500 / 2.0), B = (int)(500 / 2.0);
             azm = azm * Math.PI / 180.0;

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Driver;
+using MongoDB_CCD;
 
 namespace fliT
 {
@@ -15,6 +17,10 @@ namespace fliT
         private int  grabTime; // grab at time  ** start at 1 **
         private double exposureTimeCalculate; // calculated exposure Time  for grab 
         private double variableAdu; // use for calculate next grab
+
+        private static MongoClient client = new MongoClient();
+        private static IMongoDatabase db = client.GetDatabase("CCDFlat");
+      
 
 
         public double flatExposureTime(string filterName, double lastAdu, double lastExposureTime, double targetAdu, int grabTime)
@@ -49,6 +55,24 @@ namespace fliT
             double simulete = adu / oldExposure;
             double exposureCal = variableAdu / simulete;
             return (exposureCal);
+        }
+
+        public double exposureTimeFristGrab(double sunAlt ,string filter,double targetAdu)
+        {
+            double fristExposureTime = 0;
+            try
+            {
+                var things = db.GetCollection<CCD_Mongo>("data");
+                var sunaltDB = things.AsQueryable().Where(x => x.SunAltStart >= (sunAlt - 0.2) & x.SunAltStart < (sunAlt + 0.2) & x.Filter == filter & x.Adu >= (targetAdu - 1000) & x.Adu <= (targetAdu + 1000)).Max(x => x.SunAltStart);
+                var command = things.AsQueryable().Where(y => y.SunAltStart == sunaltDB & y.Filter == filter).FirstOrDefault();
+                fristExposureTime = command.ExposureTime;
+            }
+            catch
+            {
+                fristExposureTime = 1.00;
+            }
+            return (fristExposureTime);
+           
         }
       
 

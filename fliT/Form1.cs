@@ -595,6 +595,9 @@ namespace fliT
             }
         }
 
+ 
+
+
         private void button18_Click(object sender, EventArgs e)
         {
             slectFilter();
@@ -675,7 +678,10 @@ namespace fliT
             Image<Bgr, byte> img = new Image<Bgr, byte>("LASTALLSKY.JPG");
 
             Allskyplotgraph allskyplotgraph = new Allskyplotgraph();
-            Image<Bgr, byte> imgAddGraph = allskyplotgraph.plotTelescope(img, Azm, Alt, 5);
+
+            Point point = allskyplotgraph.calculatePoint(Azm, Alt);
+
+            Image<Bgr, byte> imgAddGraph = allskyplotgraph.plotTelescope(img, point ,5);
             imageBox1.Image = imgAddGraph;
             fileNameAllsky = "AllskyImage/Alt" + Alt + "AZ" + Azm + ".jpg";
             imgAddGraph.Save(fileNameAllsky);
@@ -730,12 +736,14 @@ namespace fliT
 
         private void button7_Click(object sender, EventArgs e)
         {
-            if (!connectStatus)
+            if (connectStatus)
             {
                 double exposureTime = 0;
                 if (checkBox1.Checked == true)
                 {
-                    exposureTime = exposureformDB(37500, filterSelect);
+                    sunPosition(out double sunAlt, out double sunAzm);
+                    //exposureTime = exposureformDB(37500, filterSelect);
+                    exposureTime = flatCalculator.exposureTimeFristGrab(sunAlt, filterSelect, Convert.ToDouble(textBox19.Text));
                     exposureTime = Convert.ToDouble(Math.Round(Convert.ToDecimal(exposureTime), 2));
                 }
                 else if (checkBox1.Checked == false)
@@ -801,7 +809,7 @@ namespace fliT
                         exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), lastExposureTime);
                     }
                     fristconut++;
-                    if (Math.Abs(CostError) <= 2000)
+                    if (Math.Abs(CostError) <= 2500)
                     {
                         flatCount++;
                     }
@@ -925,7 +933,6 @@ namespace fliT
             amostFlat = Convert.ToInt32(comboBox11.Text);
             enableAmostFlat(amostFlat);
         }
-
         private void enableAmostFlat(int amostFlat)
         {
             switch (amostFlat)
@@ -1004,14 +1011,31 @@ namespace fliT
                     break;
             }
         }
+
         string[] nameFlat = { };
+
         int loop = 1;
-        double expTime = 1;
-        double expTime2 = 1;
+        int filtercount = 0;
+        double lastexp = 1;
+        double targetAdu = 0;
+        int queuefilter = 0;
+        string[] filterArray = null;
+        bool onChangeFilter = true;
+        FlatCalculator flatCalculator = new FlatCalculator();
         private void button12_Click(object sender, EventArgs e)
         {
+            sunPosition(out double sunAlt, out double sunAzm);
+            targetAdu = Convert.ToInt32(textBox19.Text);
+            filtercount = Convert.ToInt32(comboBox11.Text);
+
+           filterArray = filterQueue(filtercount);
+
+            lastexp = flatCalculator.exposureTimeFristGrab(sunAlt, filterSelect, targetAdu);
+            loop = 1;
+            onChangeFilter = true;
+
             flatCount = 0;
-            aDU = 30000;
+           
             if (starLoop)
             {
                 starLoop = false;
@@ -1027,32 +1051,54 @@ namespace fliT
                 timer4.Start();
             }
         }
-        FlatCalculator flatCalculator = new FlatCalculator();
-        FlatCalculator flatCalculator2 = new FlatCalculator();
+       
+        
         private void timer4_Tick(object sender, EventArgs e)
         {
             button12.Invoke((Action)(() =>
             {
-                double aduTarget = 37500;
                 if (starLoop)
                 {
-                    Console.WriteLine("Expost : " + expTime + " ADU : " + aDU + " grab at " + loop);
-                    expTime = flatCalculator.flatExposureTime("R", aDU, expTime, 37500, loop);
-
-                    if (Math.Abs(aDU - aduTarget) <= 1000)
+                    
+                    if (queuefilter < filterArray.Length && onChangeFilter == true)
                     {
-                        Console.WriteLine("OK" + flatCount);
+                        Console.WriteLine("change filter : "+filterArray[queuefilter]);
+                        comboBox1.Text = filterArray[queuefilter];
+                        slectFilter();
+                        onChangeFilter = false;
+                        queuefilter++;
+                    }
+                    else if (queuefilter <= filterArray.Length && onChangeFilter == false)
+                    {
+                        Console.WriteLine("Exp at : " + loop+" lastexp : "+ lastexp + " ADU : "+ aDU);
+                        exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), lastexp);
+                        lastexp = flatCalculator.flatExposureTime("R", aDU, lastexp, 37500, loop);
+                        loop++;
+                    }
+                    if (Math.Abs(aDU - targetAdu) <= 2500)
+                    {
+                        Console.WriteLine("ADU PASS");
                         flatCount++;
-                        if (flatCount > 5)
+                        if (flatCount >= 5)
                         {
-                            starLoop = false;
-                            button12.Text = "Start Expose";
-                            button12.BackColor = System.Drawing.Color.Lime;
-                            timer4.Stop();
+                            onChangeFilter = true;
+                            flatCount = 0;
+                            loop = 0;
+                            aDU = 0;
+                            sunPosition(out double sunAlt, out double sunAzm);
+                            lastexp = flatCalculator.exposureTimeFristGrab(sunAlt, filterSelect, targetAdu);
+                           
+                            if (queuefilter >= filterArray.Length)
+                            {
+                                starLoop = false;
+                                button12.Text = "Start Expose";
+                                button12.BackColor = System.Drawing.Color.Lime;
+                                timer4.Stop();
+                            }
                         }
                     }
                 }
-                loop++;
+               
 
             }));
         }
@@ -1073,7 +1119,11 @@ namespace fliT
                 }
             }
             return (nameFlat);
+        }
 
+        private void button9_Click(object sender, EventArgs e)
+        {
+            AllskyPlotGraph(out string fileNameAllsky);
         }
 
         //=========== Continue Flat ============//
@@ -1083,10 +1133,11 @@ namespace fliT
         {
             double exposure = 0;
             sunPosition(out double sunAlt, out double sunAzm);
+          
             try
             {
                 var things = db.GetCollection<CCD_Mongo>("data");
-                var sunaltDB = things.AsQueryable().Where(x => x.SunAltStart >= (sunAlt - 0.5) & x.SunAltStart < (sunAlt + 0.5) & x.Filter == filter & x.Adu >= (aduTarget - 1000) & x.Adu <= (aduTarget + 1000)).Min(x => x.SunAltStart);
+                var sunaltDB = things.AsQueryable().Where(x => x.SunAltStart >= (sunAlt - 0.2) & x.SunAltStart < (sunAlt + 0.2) & x.Filter == filter & x.Adu >= (aduTarget - 1000) & x.Adu <= (aduTarget + 1000)).Min(x => x.SunAltStart);
                 var command = things.AsQueryable().Where(y => y.SunAltStart == sunaltDB & y.Filter == filter).FirstOrDefault();
                 exposure = command.ExposureTime;
             }
@@ -1097,6 +1148,59 @@ namespace fliT
             return (exposure);
         }
         //===================================//
+
+        public string[] filterQueue(int queue)
+        {
+            string[] filterArray = new string[queue];
+            switch (queue)
+            {
+                case 1:
+                    filterArray[0] = comboBox3.Text;
+                    break;
+                case 2:
+                    filterArray[0] = comboBox3.Text;
+                    filterArray[1] = comboBox4.Text;
+                    break;
+                case 3:
+                    filterArray[0] = comboBox3.Text;
+                    filterArray[1] = comboBox4.Text;
+                    filterArray[2] = comboBox5.Text;
+                    break;
+                case 4:
+                    filterArray[0] = comboBox3.Text;
+                    filterArray[1] = comboBox4.Text;
+                    filterArray[2] = comboBox5.Text;
+                    filterArray[3] = comboBox6.Text;
+                    break;
+                case 5:
+                    filterArray[0] = comboBox3.Text;
+                    filterArray[1] = comboBox4.Text;
+                    filterArray[2] = comboBox5.Text;
+                    filterArray[3] = comboBox6.Text;
+                    filterArray[4] = comboBox7.Text;
+                    break;
+                case 6:
+                    filterArray[0] = comboBox3.Text;
+                    filterArray[1] = comboBox4.Text;
+                    filterArray[2] = comboBox5.Text;
+                    filterArray[3] = comboBox6.Text;
+                    filterArray[4] = comboBox7.Text;
+                    filterArray[5] = comboBox8.Text;
+                    break;
+                   
+                case 7:
+                    filterArray[0] = comboBox3.Text;
+                    filterArray[1] = comboBox4.Text;
+                    filterArray[2] = comboBox5.Text;
+                    filterArray[3] = comboBox6.Text;
+                    filterArray[4] = comboBox7.Text;
+                    filterArray[5] = comboBox8.Text;
+                    filterArray[6] = comboBox9.Text;
+                    break;
+               default: break;
+            }
+            return (filterArray);
+        }
     }
 
 
