@@ -27,7 +27,7 @@ using MongoDB_CCD;
 using convertFitsToJPG;
 using Emgu.CV.CvEnum;
 using AllSky;
-
+using PlanetPositions;
 
 namespace fliT
 {
@@ -61,6 +61,7 @@ namespace fliT
 
         double LATITUDE = 18.560833;
         double LONGITUDE = 98.50566;
+        double elevationMeters = 2400;
 
 
 
@@ -207,7 +208,7 @@ namespace fliT
         {
             addFilter();
             //=============== SET UP =============//
-            AstroLib.Setup(true, LATITUDE, LONGITUDE, 7, false, 2400, "Port1.PXP");
+            AstroLib.Setup(true, LATITUDE, LONGITUDE, 7, false, 2400, "sunCal/Port1.PXP");
             //===================================//
             SetTimer();
         }
@@ -515,8 +516,24 @@ namespace fliT
         {
             try
             {
-                RaDec raDec = Sun.GetRaDec(AstroTime.JulianDayUTC(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day));
-                AltAz sunAltAzm = AstroLib.RADecToAltAz(DateTime.Now, raDec);
+
+                Planets _Planets = new Planets(MathUtil.DegsToRads(LATITUDE), MathUtil.DegsToRads(LONGITUDE), elevationMeters, Path.GetDirectoryName("sunCal/").ToString() + @"\\");
+                double JD = AstroTime.JulianDayUTC(DateTime.UtcNow);
+                _Planets.CalculatePlanetPosition(0, JD);
+
+                Angle RaAngle = new Angle();
+                RaAngle.Rads = _Planets.All.Plan[0].RA;
+
+                Angle DecAngle = new Angle();
+                DecAngle.Rads = _Planets.All.Plan[0].Dec;
+
+                //Console.WriteLine("RA: " + RaAngle.ToHms() + " DEC: " + DecAngle.ToDms());
+
+                RaDec SunCoordinate = new RaDec(RaAngle, DecAngle);
+                //========================//
+
+                //RaDec raDec = Sun.GetRaDec(AstroTime.JulianDayUTC(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day));
+                AltAz sunAltAzm = AstroLib.RADecToAltAz(DateTime.Now, SunCoordinate);
                 String altSunBeforeSprit = Convert.ToString(sunAltAzm.Alt);
                 String[] sunAltSprit = altSunBeforeSprit.Split(' ');
                 Double sunAltSprited = Convert.ToDouble(sunAltSprit[0]);
