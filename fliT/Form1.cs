@@ -515,8 +515,7 @@ namespace fliT
         {
             try
             {
-                
-                RaDec raDec = Sun.GetRaDec(AstroTime.JulianDayUTC(DateTime.Now));
+                RaDec raDec = Sun.GetRaDec(AstroTime.JulianDayUTC(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day));
                 AltAz sunAltAzm = AstroLib.RADecToAltAz(DateTime.Now, raDec);
                 String altSunBeforeSprit = Convert.ToString(sunAltAzm.Alt);
                 String[] sunAltSprit = altSunBeforeSprit.Split(' ');
@@ -595,7 +594,7 @@ namespace fliT
             }
         }
 
- 
+
 
 
         private void button18_Click(object sender, EventArgs e)
@@ -614,6 +613,7 @@ namespace fliT
             continueShot = Convert.ToDouble(textBox12.Text);
             textBox11.Enabled = false;
             textBox12.Enabled = false;
+            Console.WriteLine("sunAlt");
 
             if (starLoop)
             {
@@ -681,7 +681,7 @@ namespace fliT
 
             Point point = allskyplotgraph.calculatePoint(Azm, Alt);
 
-            Image<Bgr, byte> imgAddGraph = allskyplotgraph.plotTelescope(img, point ,5);
+            Image<Bgr, byte> imgAddGraph = allskyplotgraph.plotTelescope(img, point, 5);
             imageBox1.Image = imgAddGraph;
             fileNameAllsky = "AllskyImage/Alt" + Alt + "AZ" + Azm + ".jpg";
             imgAddGraph.Save(fileNameAllsky);
@@ -1028,14 +1028,14 @@ namespace fliT
             targetAdu = Convert.ToInt32(textBox19.Text);
             filtercount = Convert.ToInt32(comboBox11.Text);
 
-           filterArray = filterQueue(filtercount);
+            filterArray = filterQueue(filtercount);
 
             lastexp = flatCalculator.exposureTimeFristGrab(sunAlt, filterSelect, targetAdu);
             loop = 1;
             onChangeFilter = true;
 
             flatCount = 0;
-           
+
             if (starLoop)
             {
                 starLoop = false;
@@ -1051,28 +1051,29 @@ namespace fliT
                 timer4.Start();
             }
         }
-       
-        
+
+
         private void timer4_Tick(object sender, EventArgs e)
         {
             button12.Invoke((Action)(() =>
             {
                 if (starLoop)
                 {
-                    
+
                     if (queuefilter < filterArray.Length && onChangeFilter == true)
                     {
-                        Console.WriteLine("change filter : "+filterArray[queuefilter]);
+
                         comboBox1.Text = filterArray[queuefilter];
+                        Console.WriteLine("change Filter: " + comboBox1.Text);
                         slectFilter();
                         onChangeFilter = false;
                         queuefilter++;
                     }
                     else if (queuefilter <= filterArray.Length && onChangeFilter == false)
                     {
-                        Console.WriteLine("Exp at : " + loop+" lastexp : "+ lastexp + " ADU : "+ aDU);
+
                         exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), lastexp);
-                        lastexp = flatCalculator.flatExposureTime("R", aDU, lastexp, 37500, loop);
+                        lastexp = flatCalculator.flatExposureTime(comboBox1.Text, aDU, lastexp, targetAdu, loop);
                         loop++;
                     }
                     if (Math.Abs(aDU - targetAdu) <= 2500)
@@ -1087,7 +1088,7 @@ namespace fliT
                             aDU = 0;
                             sunPosition(out double sunAlt, out double sunAzm);
                             lastexp = flatCalculator.exposureTimeFristGrab(sunAlt, filterSelect, targetAdu);
-                           
+
                             if (queuefilter >= filterArray.Length)
                             {
                                 starLoop = false;
@@ -1098,7 +1099,7 @@ namespace fliT
                         }
                     }
                 }
-               
+
 
             }));
         }
@@ -1133,7 +1134,7 @@ namespace fliT
         {
             double exposure = 0;
             sunPosition(out double sunAlt, out double sunAzm);
-          
+
             try
             {
                 var things = db.GetCollection<CCD_Mongo>("data");
@@ -1187,7 +1188,7 @@ namespace fliT
                     filterArray[4] = comboBox7.Text;
                     filterArray[5] = comboBox8.Text;
                     break;
-                   
+
                 case 7:
                     filterArray[0] = comboBox3.Text;
                     filterArray[1] = comboBox4.Text;
@@ -1197,7 +1198,7 @@ namespace fliT
                     filterArray[5] = comboBox8.Text;
                     filterArray[6] = comboBox9.Text;
                     break;
-               default: break;
+                default: break;
             }
             return (filterArray);
         }
