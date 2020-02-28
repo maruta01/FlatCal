@@ -94,7 +94,6 @@ namespace AllSky
                     }
                 }
             }
-
             CvInvoke.Circle(addImgBg, new Point((addImgBg.Height / 2), (addImgBg.Width / 2)), 320, new MCvScalar(0, 0, 0), 2);
             return (addImgBg);
         }

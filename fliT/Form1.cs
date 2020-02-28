@@ -1139,7 +1139,7 @@ namespace fliT
             return (nameFlat);
         }
 
-    
+
 
         //=========== Continue Flat ============//
 
@@ -1217,10 +1217,68 @@ namespace fliT
             return (filterArray);
         }
 
-            private void button9_Click(object sender, EventArgs e)
+
+
+        //========================= Flat Optimizer =====================================//
+        double lastExpTime = 0;
+        double aduOpt = 0;
+        double jun = 0.2;
+        double aduTarget = 37500;
+        double expTimeHat = 0;
+        double aduPredict = 0;
+        
+        private void button9_Click(object sender, EventArgs e)
         {
             
+            lastExpTime = 1.574656375;
+            aDU = 36597.23991;
+            aduOpt = aDU;
+            if (starLoop)
+            {
+                starLoop = false;
+                button9.Text = "Start Expose";
+                button9.BackColor = System.Drawing.Color.Lime;
+                timer3.Stop();
+            }
+            else
+            {
+                starLoop = true;
+                button9.Text = "Stop Expose";
+                button9.BackColor = System.Drawing.Color.Red;
+                timer3.Start();
+            }
+
         }
+
+        private void timer3_Tick(object sender, EventArgs e)
+        {
+            double sunAlt = -3.063647474;
+             aduPredict = ((-1.3 * (Math.Pow(10, 4))) * sunAlt) + ((-2.0 * Math.Pow(10, 3)) * lastExpTime);
+            //Capture Exposure Take real Adu use >>>> Exposure Time = lastExpTime <<<<
+
+            aduOpt = aduOpt + (jun * (aDU - aduPredict));
+            double Error = aduOpt- aduTarget  ;
+            if (Error < 0)
+            {
+                expTimeHat = (lastExpTime + Math.Abs(lastExpTime - (lastExpTime*1.618)) / 2);
+               // Console.WriteLine("Positive direction");
+            }
+            else if (Error > 0)
+            {
+                expTimeHat = (lastExpTime - Math.Abs(lastExpTime - (lastExpTime * 1.618)) / 2);
+                //Console.WriteLine("Negative direction");
+            }
+
+            lastExpTime = expTimeHat;
+
+            if(Math.Abs(Error) <= 2500)
+            {
+                Console.WriteLine("Adu OK");
+            }
+
+        }
+
+        //=========================================================//
 
     }
 
