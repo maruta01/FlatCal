@@ -1139,10 +1139,7 @@ namespace fliT
             return (nameFlat);
         }
 
-        private void button9_Click(object sender, EventArgs e)
-        {
-            AllskyPlotGraph(out string fileNameAllsky);
-        }
+    
 
         //=========== Continue Flat ============//
 
@@ -1219,6 +1216,12 @@ namespace fliT
             }
             return (filterArray);
         }
+
+            private void button9_Click(object sender, EventArgs e)
+        {
+            
+        }
+
     }
 
 
