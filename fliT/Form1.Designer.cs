@@ -600,10 +600,10 @@
             // button8
             // 
             this.button8.BackColor = System.Drawing.Color.Lime;
-            this.button8.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.button8.Location = new System.Drawing.Point(116, 616);
+            this.button8.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.button8.Location = new System.Drawing.Point(130, 616);
             this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(123, 55);
+            this.button8.Size = new System.Drawing.Size(94, 47);
             this.button8.TabIndex = 46;
             this.button8.Text = "Start Expose \r\n";
             this.button8.UseVisualStyleBackColor = false;
@@ -660,7 +660,7 @@
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(185, 48);
             this.button7.TabIndex = 49;
-            this.button7.Text = "Start Eposure Flat";
+            this.button7.Text = "Start Flat Calculator";
             this.button7.UseVisualStyleBackColor = false;
             this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
@@ -709,7 +709,7 @@
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(75, 23);
             this.button9.TabIndex = 55;
-            this.button9.Text = "button9";
+            this.button9.Text = "Test EXT Alt";
             this.button9.UseVisualStyleBackColor = true;
             this.button9.Click += new System.EventHandler(this.button9_Click);
             // 

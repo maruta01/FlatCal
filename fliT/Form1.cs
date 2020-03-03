@@ -778,14 +778,14 @@ namespace fliT
                 if (starLoop)
                 {
                     starLoop = false;
-                    button7.Text = "Start Expose";
+                    button7.Text = "Start Flat Calculator";
                     button7.BackColor = System.Drawing.Color.Lime;
                     timer2.Stop();
                 }
                 else
                 {
                     starLoop = true;
-                    button7.Text = "Stop Expose";
+                    button7.Text = "Stop Flat Calculator";
                     button7.BackColor = System.Drawing.Color.Red;
                     timer2.Start();
                 }
@@ -1219,61 +1219,87 @@ namespace fliT
 
 
 
-        //========================= Flat Optimizer =====================================//
+        //========================= TEST Flat Optimizer =============// สูตร ทดลองเเบบใช้ พระอาทิตย์
         double lastExpTime = 0;
         double aduOpt = 0;
-        double jun = 0.2;
+        double jun = 0.1;
         double aduTarget = 37500;
         double expTimeHat = 0;
         double aduPredict = 0;
-        
+        int countFlat = 0;
+
         private void button9_Click(object sender, EventArgs e)
         {
-            
-            lastExpTime = 1.574656375;
-            aDU = 36597.23991;
-            aduOpt = aDU;
+            sunPosition(out double sunAlt, out double sunAzm);
+            //exposureTime = exposureformDB(37500, filterSelect);
+            lastExpTime = flatCalculator.exposureTimeFristGrab(sunAlt, filterSelect, Convert.ToDouble(textBox19.Text));
+            lastExpTime = Convert.ToDouble(Math.Round(Convert.ToDecimal(exposureTime), 2));
+
+            countFlat = 0;
             if (starLoop)
             {
                 starLoop = false;
-                button9.Text = "Start Expose";
+                button9.Text = "Start Test EXT Alt";
                 button9.BackColor = System.Drawing.Color.Lime;
                 timer3.Stop();
             }
             else
             {
                 starLoop = true;
-                button9.Text = "Stop Expose";
+                button9.Text = "Stop Test EXT Alt";
                 button9.BackColor = System.Drawing.Color.Red;
                 timer3.Start();
             }
 
         }
+         double exposureCalNextgrap(double oldExposure, double adu, double variableAdu)
+        {
+            double simulete = adu / oldExposure;
+            double exposureCal = variableAdu / simulete;
+            return (exposureCal);
+        }
 
         private void timer3_Tick(object sender, EventArgs e)
         {
-            double sunAlt = -3.063647474;
-             aduPredict = ((-1.3 * (Math.Pow(10, 4))) * sunAlt) + ((-2.0 * Math.Pow(10, 3)) * lastExpTime);
-            //Capture Exposure Take real Adu use >>>> Exposure Time = lastExpTime <<<<
-
-            aduOpt = aduOpt + (jun * (aDU - aduPredict));
-            double Error = aduOpt- aduTarget  ;
-            if (Error < 0)
+            if (starLoop)
             {
-                expTimeHat = (lastExpTime + Math.Abs(lastExpTime - (lastExpTime*1.618)) / 2);
-               // Console.WriteLine("Positive direction");
-            }
-            else if (Error > 0)
-            {
-                expTimeHat = (lastExpTime - Math.Abs(lastExpTime - (lastExpTime * 1.618)) / 2);
-                //Console.WriteLine("Negative direction");
-            }
+                sunPosition(out double sunAlt, out double sunAzm);
+                aduPredict = ((-1.3 * (Math.Pow(10, 4))) * sunAlt) + ((-2.0 * Math.Pow(10, 3)) * lastExpTime);
 
-            lastExpTime = expTimeHat;
+                exposeCamera(Convert.ToInt32(textBox4.Text), Convert.ToInt32(textBox5.Text), Convert.ToInt32(textBox6.Text), lastExpTime);
+                //Capture Exposure Take real Adu use >>>> Exposure Time = lastExpTime <<<<
 
-            if(Math.Abs(Error) <= 2500)
-            {
-                Console.WriteLine("Adu OK");
+                aduOpt = aDU + (jun * (aDU - aduPredict));
+                double Error = aduOpt - aduTarget;
+                if ((aDU - aduTarget) < 0)
+                {
+
+                    double nextExp = exposureCalNextgrap(lastExpTime, aDU, aDU + Math.Abs(Error));
+                    expTimeHat = lastExpTime + (Math.Abs(lastExpTime - (nextExp))) * 1.618;
+                    // Console.WriteLine("Positive direction");
+                }
+                else if ((aDU - aduTarget) > 0)
+                {
+                    double nextExp = exposureCalNextgrap(lastExpTime, aDU, aDU + Math.Abs(Error));
+                    expTimeHat = lastExpTime - (Math.Abs(lastExpTime - nextExp) * 1.618);
+                    //Console.WriteLine("Negative direction");
+                }
+
+                lastExpTime = Convert.ToDouble(Math.Round(Convert.ToDecimal(expTimeHat), 2));
+
+                if (Math.Abs(aDU - aduTarget) <= 2500)
+                {
+                    Console.WriteLine("Adu OK = "+ countFlat);
+                    countFlat++;
+                    if (countFlat >=5)
+                    {
+                        starLoop = false;
+                        button9.Text = "Start Expose";
+                        button9.BackColor = System.Drawing.Color.Lime;
+                        timer3.Stop();
+                    }
+
+                }
             }
 
         }
